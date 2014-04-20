@@ -1,0 +1,12 @@
+extends layout
+
+block content
+    p
+        | Enter name to search
+        form(action='/search', method='get')
+            if query
+                input(type='text', name='q' value="#{query}")
+            else
+                input(type='text', name='q')
+            input(type='submit')
+

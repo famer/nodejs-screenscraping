@@ -1,0 +1,17 @@
+extends layout
+
+block content
+    p
+        | Enter name to search
+        form(action='/search', method='get')
+            if query
+                input(type='text', name='q' value="#{query}")
+            else
+                input(type='text', name='q')
+            input(type='submit')
+    if query
+        ul#list
+            each item, i in items
+                li: a(href="/teacher/#{item.id}") #{item.name}
+            else
+                li no results

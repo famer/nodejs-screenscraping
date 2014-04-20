@@ -1,0 +1,18 @@
+extends layout
+
+block content
+    a#home(href="/") << back to home
+    h3 #{contacts.name}
+    p.
+        Contacts:
+    ul
+        li Phone: #{contacts.phone}
+        li Room: #{contacts.room}
+        li Email(s): #{contacts.email}
+    p.
+        Today(#{day}) at:
+    ul
+        for item in rooms
+            li #{item.room} (#{item.since} - #{item.till})
+        else
+            li Not in a university today
