@@ -91,7 +91,7 @@ function getUrlOnTimetable(name, callback) {
 	  	
 	  	var $ = window.$;
 	  	
-	  	var timetableUrl = $('a:contains("RNDr. Michal Žemlička, Ph.D."):eq(0)').attr('href');
+	  	var timetableUrl = $('a:contains("'+name+'"):eq(0)').attr('href');
 
 	  	timetableFullUrl = "https://timetable.fit.cvut.cz/public/en/ucitele/" + timetableUrl;
 	  	
@@ -115,7 +115,7 @@ function fetchAgendaWithCallBack(url, day, callback) {
 	  	var $ = window.$;
 	  	var data = {};
 	  	var dayNumber = day || (new Date).getDay() - 1;
-	  	console.log('!!!!',dayNumber);
+	  	
 	  	var colspanSum = 0;
 	  	var notAbsent = false;
 	  	var rooms = [];
