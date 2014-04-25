@@ -58,13 +58,19 @@ app.get('/teacher/:username', function(req, res) {
 	  	contacts.name = $('#name').text();
 	  	contacts.phone = $('table[class=info-table]:eq(0) tr:eq(2) td:eq(1)').text();
 	  	contacts.room = $('table[class=info-table]:eq(0) tr:eq(1) td:eq(1)').text();
-	  	contacts.email = $('table[class=info-table]:eq(0) tr:eq(4) td:eq(1)').text();
+	  	contacts.email = $('table[class=info-table]:eq(0) td:contains("E-mail")').next().text();//$('table[class=info-table]:eq(0) tr:eq(4) td:eq(1)').text();
 	  	contacts.number = $('table[class=info-table]:eq(1) tr:eq(1) td:eq(1)').text();
 
-	  	fetchAgendaWithCallBack(contacts.number, req.query.day, function(data) {
-	  		data.contacts = contacts;
-	  		res.render('teacher', data);
+	  	var tUrl = 'https://timetable.fit.cvut.cz/public/en/ucitele/' + contacts.number.substr(0,2) +
+	'/' + contacts.number.substr(2,2) + '/u' + contacts.number + '000.html' ;
+
+	  	getUrlOnTimetable(contacts.name, function(timetableUrl) {
+	  		fetchAgendaWithCallBack(timetableUrl, req.query.day, function(data) {
+		  		data.contacts = contacts;
+		  		res.render('teacher', data);
+		  	});
 	  	});
+	  	
 	  	
 	  }
 	});
@@ -72,9 +78,32 @@ app.get('/teacher/:username', function(req, res) {
 
 });
 
-function fetchAgendaWithCallBack(number, day, callback) {
-	var url = 'https://timetable.fit.cvut.cz/public/en/ucitele/' + number.substr(0,2) +
-	'/' + number.substr(2,2) + '/u' + number + '000.html' ;
+function getUrlOnTimetable(name, callback) {
+	name = name.replace(",", "");
+	var url = "https://timetable.fit.cvut.cz/public/en/ucitele/index.html";
+	jsdom.env({
+	  url: url,  
+	  headers: {
+        'Authorization': 'Basic dGF0YXJ0aW06cmFGeGVnRmoyVHlW'
+    	},
+	  scripts: ["http://code.jquery.com/jquery.js"],
+	  done: function (errors, window) {
+	  	
+	  	var $ = window.$;
+	  	
+	  	var timetableUrl = $('a:contains("RNDr. Michal Žemlička, Ph.D."):eq(0)').attr('href');
+
+	  	timetableFullUrl = "https://timetable.fit.cvut.cz/public/en/ucitele/" + timetableUrl;
+	  	
+	  	callback(timetableFullUrl);
+	  	
+	  	
+	  }
+	});
+}
+
+function fetchAgendaWithCallBack(url, day, callback) {
+	
 	console.log(url);
 	jsdom.env({
 	  url: url,  
@@ -86,12 +115,13 @@ function fetchAgendaWithCallBack(number, day, callback) {
 	  	var $ = window.$;
 	  	var data = {};
 	  	var dayNumber = day || (new Date).getDay() - 1;
+	  	console.log('!!!!',dayNumber);
 	  	var colspanSum = 0;
 	  	var notAbsent = false;
 	  	var rooms = [];
-	  	
-	  	$('table[class=timetable] tbody tr:eq(' + dayNumber + ') td:gt(0)').each(function(index, e) {
-	  		
+	  	console.log('day', dayNumber, url);
+	  	$('table[class=timetable]:eq(0) tbody tr:eq(' + dayNumber + ') td:gt(0)').each(function(index, e) {
+	  		console.log('!!!');
 	  		var span = parseInt($(e).attr('colspan'));
 	  		var room = $('a:eq(1)', $(e)).text();
 
@@ -101,7 +131,8 @@ function fetchAgendaWithCallBack(number, day, callback) {
 	  		}
 	  		colspanSum += span;
 	  	});
-	  	data.day = $('table[class=timetable] tbody tr:eq(' + dayNumber + ') td:eq(0)').text();
+	  	data.day = $('table[class=timetable]:eq(0) tbody tr:eq(' + dayNumber + ') td:eq(0)').text();
+	  	console.log(data.day);
 	  	data.rooms = rooms;
 	  	callback(data);
 	  	
