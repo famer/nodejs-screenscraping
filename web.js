@@ -37,12 +37,33 @@ app.get('/search', function(req, res) {
 	  url: url, 
 	  scripts: ["http://code.jquery.com/jquery.js"],
 	  done: function (errors, window) {
+
 	  	var $ = window.$;
-	  	items = [];
-	  	$("table[id=profile] tr:gt(0)").each(function(index,e) {
-	  		items.push({id: $(e).attr('id'), 'name': $('td a', e).text()});
-	  	});
-	  	res.render('results', {items: items, query: req.query.q});
+	  	if($('#name').text()) {
+	  		console.log('!!!!');
+	  		contacts = {};
+		  	contacts.name = $('#name').text();
+		  	contacts.phone = $('table[class=info-table]:eq(0) tr:eq(2) td:eq(1)').text();
+		  	contacts.room = $('table[class=info-table]:eq(0) tr:eq(1) td:eq(1)').text();
+		  	contacts.email = $('table[class=info-table]:eq(0) td:contains("E-mail")').next().text();//$('table[class=info-table]:eq(0) tr:eq(4) td:eq(1)').text();
+		  	contacts.number = $('table[class=info-table]:eq(1) tr:eq(1) td:eq(1)').text();
+
+		  	var tUrl = 'https://timetable.fit.cvut.cz/public/en/ucitele/' + contacts.number.substr(0,2) +
+		'/' + contacts.number.substr(2,2) + '/u' + contacts.number + '000.html' ;
+
+		  	getUrlOnTimetable(contacts.name, function(timetableUrl) {
+		  		fetchAgendaWithCallBack(timetableUrl, req.query.day, function(data) {
+			  		data.contacts = contacts;
+			  		res.render('teacher', data);
+			  	});
+		  	});
+	  	} else {
+		  	items = [];
+		  	$("table[id=profile] tr:gt(0)").each(function(index,e) {
+		  		items.push({id: $(e).attr('id'), 'name': $('td a', e).text()});
+		  	});
+		  	res.render('results', {items: items, query: req.query.q});
+		  }
 	  }
 	});
 });
