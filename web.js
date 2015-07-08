@@ -105,7 +105,7 @@ function getUrlOnTimetable(name, callback) {
 	jsdom.env({
 	  url: url,  
 	  headers: {
-        'Authorization': 'Basic dGF0YXJ0aW06cmFGeGVnRmoyVHlW'
+        'Authorization': 'Basic SecretdGF0YXJ0aW06cmFGeGVnRSecret'
     	},
 	  scripts: ["http://code.jquery.com/jquery.js"],
 	  done: function (errors, window) {
